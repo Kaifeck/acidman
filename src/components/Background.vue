@@ -6,27 +6,19 @@
     </template>
     <button @click="mute">Mute</button>
     <button @click="unmute">Unmute</button>
-    <input type="range" v-model="volume" min="0" max="1" step="0.01" @input="volumeDelta"/>
-    <Knob :max="1" :min="0" ref="childKnob"/>
+    <div>
+      <label>Filter</label>
+      <input type="range" v-model="filter" min="0" max="1" step="0.01" @input="filterDelta"/>
+    </div>
+    <Knob :max="1" :min="0" ref="childKnob" :changeVol="volumeDelta"/>
 </div>
 </template>
 
 <script lang="ts">
 import { Component, defineComponent } from 'vue';
 import { notes303 } from '../static/notes';
+import { audioContext, mainGainNode, filter} from '../modules/oscillator'
 import Knob from './Knob.vue'; 
-
-let audioContext: AudioContext = new window.AudioContext();
-let mainGainNode: GainNode = audioContext.createGain();
-
-let oscTypes: OscillatorType[] = ['sawtooth', 'square'];
-mainGainNode.connect(audioContext.destination);
-mainGainNode.gain.value = 0.03;
-
-/* let oscillator : OscillatorNode = audioContext.createOscillator();
-oscillator.type = 'square';
-oscillator.connect(mainGainNode); */
-
 
 export default defineComponent({
   name: 'Background',
@@ -40,7 +32,8 @@ export default defineComponent({
       chosenOsc: 'sawtooth' as OscillatorType,
       osci: audioContext.createOscillator() as OscillatorNode,
       running: false as boolean,
-      volume: mainGainNode.gain.value
+      volume: mainGainNode.gain.value,
+      filter: 1000,
     }
   },
   beforeMount() {
@@ -54,9 +47,12 @@ export default defineComponent({
       mainGainNode.gain.value = this.volume;
       this.osci = audioContext.createOscillator();
       this.osci.type = this.chosenOsc;
-      this.osci.connect(mainGainNode);
+      this.osci.connect(filter);
       this.osci.frequency.value = freq;
       this.osci.start();
+      filter.connect(mainGainNode);
+      //filter.frequency.value = 1000;
+
       this.running = true;
     },
     playSlide(){
@@ -68,14 +64,22 @@ export default defineComponent({
     unmute(){
       mainGainNode.gain.value = 0.03;
     },
-    volumeDelta(){
+    volumeDelta(volume: number){
+      this.volume = volume;
       mainGainNode.gain.value = this.volume;
     },
-    mouseDrag(event: MouseEvent){
-      this.$refs.childKnob.mouseDrag(event.pageY);
+    filterDelta(){
+      let max = audioContext.sampleRate / 2;
+      let min = 40;
+      let octaves = Math.log(max/min) / Math.LN2;
+      let multiplier = Math.pow(2, octaves * (this.filter - 1.0))
+      filter.frequency.value = max * multiplier;
     },
-    mouseUpPass(event: MouseEvent){
-      this.$refs.childKnob.endDrag();
+    mouseDrag(event: MouseEvent){
+      (this.$refs.childKnob as any).mouseDrag(event.pageY);
+    },
+    mouseUpPass(){
+      (this.$refs.childKnob as any).endDrag();
     } 
   },
 });
@@ -90,4 +94,5 @@ export default defineComponent({
 img{
   width: 100%;
 }
+
 </style>
