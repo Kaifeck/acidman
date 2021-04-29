@@ -1,5 +1,7 @@
 # acidman
 
+This is just my little practice project to implement a 303 Clone using the Webaudio API and Vue + TypeScript.
+
 ## Project setup
 ```
 yarn install
