@@ -59,8 +59,7 @@ export default defineComponent({
     changeV(){
         this.changeVol!(this.volume);
     }
-  },
-  computed: {
+  },  computed: {
     cssVars(): any {
       return {
         '--angle': this.angle + "deg"
