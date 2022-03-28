@@ -1,9 +1,7 @@
 <template>
 <div class="container" @mousemove="mouseDrag" @mouseup="mouseUpPass">
     <img src="../assets/TB-303.jpg">
-    <template v-for="(value, name) in noteFreq" :value="freq" :key="name">
-      <button @mousedown="playNote(value)">{{name}}</button>
-    </template>
+  <sequencer :play-note="playNote"></sequencer>
     <button @click="mute">Mute</button>
     <button @click="unmute">Unmute</button>
     <div>
@@ -18,11 +16,13 @@
 import { Component, defineComponent } from 'vue';
 import { notes303 } from '../static/notes';
 import { audioContext, mainGainNode, filter} from '../modules/oscillator'
-import Knob from './Knob.vue'; 
+import Knob from './Knob.vue';
+import Sequencer from './Sequencer.vue';
 
 export default defineComponent({
   name: 'Background',
   components: {
+    Sequencer,
     Knob
   },
   data() {
@@ -41,6 +41,7 @@ export default defineComponent({
   },
   methods: {
     playNote(freq: number) {
+      console.info(freq);
       if(this.running){
         this.osci.stop();
       }
@@ -80,7 +81,7 @@ export default defineComponent({
     },
     mouseUpPass(){
       (this.$refs.childKnob as any).endDrag();
-    } 
+    }
   },
 });
 </script>
