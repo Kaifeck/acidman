@@ -13,4 +13,20 @@ export class Step {
     this.octaveUp = octaveUp;
     this.octaveDown = octaveDown;
   }
+
+  setValue(index: string, value: any){
+    switch (index) {
+      case 'accent':
+        this.accent = value;
+        break;
+      case 'slide':
+        this.slide = value;
+        break;
+      case 'octaveUp':
+        this.octaveUp = value;
+        break;
+      case 'octaveDown':
+        this.octaveDown = value;
+    }
+  }
 }

@@ -1,6 +1,6 @@
 <template>
 <div class="container" @mousemove="mouseDrag" @mouseup="mouseUpPass">
-    <img src="../assets/TB-303.jpg">
+<!--    <img src="../assets/TB-303.jpg">-->
   <sequencer :play-note="playNote"></sequencer>
     <button @click="mute">Mute</button>
     <button @click="unmute">Unmute</button>
@@ -8,7 +8,7 @@
       <label>Filter</label>
       <input type="range" v-model="filter" min="0" max="1" step="0.01" @input="filterDelta"/>
     </div>
-    <Knob :max="1" :min="0" ref="childKnob" :changeVol="volumeDelta"/>
+<!--    <Knob :max="1" :min="0" ref="childKnob" :changeVol="volumeDelta"/>-->
 </div>
 </template>
 
@@ -23,7 +23,7 @@ export default defineComponent({
   name: 'Background',
   components: {
     Sequencer,
-    Knob
+    /*Knob*/
   },
   data() {
     return {
@@ -37,7 +37,7 @@ export default defineComponent({
     }
   },
   beforeMount() {
-    console.dir(this.noteFreq);
+    //console.dir(this.noteFreq);
   },
   methods: {
     playNote(freq: number) {
@@ -76,12 +76,12 @@ export default defineComponent({
       let multiplier = Math.pow(2, octaves * (this.filter - 1.0))
       filter.frequency.value = max * multiplier;
     },
-    mouseDrag(event: MouseEvent){
+/*    mouseDrag(event: MouseEvent){
       (this.$refs.childKnob as any).mouseDrag(event.pageY);
     },
     mouseUpPass(){
       (this.$refs.childKnob as any).endDrag();
-    }
+    }*/
   },
 });
 </script>
