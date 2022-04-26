@@ -1,6 +1,7 @@
 <template>
 <div class="container" @mousemove="mouseDrag" @mouseup="mouseUpPass">
 <!--    <img src="../assets/TB-303.jpg">-->
+  <oscilloscope :audio-source="osci" :audio-ctx="audioCtxDos"></oscilloscope>
   <sequencer :play-note="playNote"></sequencer>
     <button @click="mute">Mute</button>
     <button @click="unmute">Unmute</button>
@@ -17,12 +18,14 @@ import { Component, defineComponent } from 'vue';
 import { notes303 } from '../static/notes';
 import { audioContext, mainGainNode, filter} from '../modules/oscillator'
 import Knob from './Knob.vue';
+import Oscilloscope from "@/components/Oscilloscope.vue";
 import Sequencer from './Sequencer.vue';
 
 export default defineComponent({
   name: 'Background',
   components: {
     Sequencer,
+    Oscilloscope
     /*Knob*/
   },
   data() {
@@ -30,6 +33,7 @@ export default defineComponent({
       //notes: [] as Note[],
       noteFreq : notes303[0],
       chosenOsc: 'sawtooth' as OscillatorType,
+      audioCtxDos: audioContext,
       osci: audioContext.createOscillator() as OscillatorNode,
       running: false as boolean,
       volume: mainGainNode.gain.value,
@@ -37,7 +41,7 @@ export default defineComponent({
     }
   },
   beforeMount() {
-    //console.dir(this.noteFreq);
+    this.osci = audioContext.createOscillator();
   },
   methods: {
     playNote(freq: number) {
@@ -46,7 +50,6 @@ export default defineComponent({
         this.osci.stop();
       }
       mainGainNode.gain.value = this.volume;
-      this.osci = audioContext.createOscillator();
       this.osci.type = this.chosenOsc;
       this.osci.connect(filter);
       this.osci.frequency.value = freq;
