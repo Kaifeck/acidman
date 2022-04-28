@@ -1,22 +1,30 @@
 <template>
-<div class="container" @mousemove="mouseDrag" @mouseup="mouseUpPass">
-<!--    <img src="../assets/TB-303.jpg">-->
-  <oscilloscope :audio-source="osci" :audio-ctx="audioCtxDos"></oscilloscope>
-  <sequencer :play-note="playNote"></sequencer>
+  <div class="container" @mousemove="mouseDrag" @mouseup="mouseUpPass" @click.once="oninteraction">
+    <!--    <img src="../assets/TB-303.jpg">-->
+    <!--  <oscilloscope :audio-source="osci" :audio-ctx="audioCtxDos"></oscilloscope>-->
+    <sequencer :play-note="playNote"></sequencer>
     <button @click="mute">Mute</button>
     <button @click="unmute">Unmute</button>
     <div>
       <label>Filter</label>
       <input type="range" v-model="filter" min="0" max="1" step="0.01" @input="filterDelta"/>
     </div>
-<!--    <Knob :max="1" :min="0" ref="childKnob" :changeVol="volumeDelta"/>-->
-</div>
+    <div>
+      <label>Waveform</label>
+      <input type="radio" v-model="waveform" value="square" @input="oscShapeDelta"/>
+      <input type="radio" v-model="waveform" value="sawtooth" @input="oscShapeDelta"/>
+    </div>
+    <!--    <Knob :max="1" :min="0" ref="childKnob" :changeVol="volumeDelta"/>-->
+  </div>
 </template>
 
 <script lang="ts">
-import { Component, defineComponent } from 'vue';
-import { notes303 } from '../static/notes';
-import { audioContext, mainGainNode, filter} from '../modules/oscillator'
+import {Component, defineComponent} from 'vue';
+import {notes303} from '../static/notes';
+import {
+  playNoteOsc,
+  initOsc, volumeDelta, filterDelta, startOsc, waveformDelta
+} from '../modules/oscillator'
 import Knob from './Knob.vue';
 import Oscilloscope from "@/components/Oscilloscope.vue";
 import Sequencer from './Sequencer.vue';
@@ -25,66 +33,51 @@ export default defineComponent({
   name: 'Background',
   components: {
     Sequencer,
-    Oscilloscope
+    /*Oscilloscope*/
     /*Knob*/
   },
   data() {
     return {
       //notes: [] as Note[],
-      noteFreq : notes303[0],
-      chosenOsc: 'sawtooth' as OscillatorType,
-      audioCtxDos: audioContext,
-      osci: audioContext.createOscillator() as OscillatorNode,
-      running: false as boolean,
-      volume: mainGainNode.gain.value,
+      noteFreq: notes303[0],
       filter: 1000,
+      waveform: 'triangle' as OscillatorType
     }
   },
   beforeMount() {
-    this.osci = audioContext.createOscillator();
+    initOsc();
   },
   methods: {
     playNote(freq: number) {
-      console.info(freq);
-      if(this.running){
-        this.osci.stop();
-      }
-      mainGainNode.gain.value = this.volume;
-      this.osci.type = this.chosenOsc;
-      this.osci.connect(filter);
-      this.osci.frequency.value = freq;
-      this.osci.start();
-      filter.connect(mainGainNode);
-      //filter.frequency.value = 1000;
-
-      this.running = true;
+      playNoteOsc(freq);
     },
-    playSlide(){
+    playSlide() {
       //oscillator.frequency.linearRampToValueAtTime(oscillator.frequency.value*2, audioContext.currentTime + 0.2);
     },
-    mute(){
-      mainGainNode.gain.value = 0;
+    mute() {
+      volumeDelta(0.00)
     },
-    unmute(){
-      mainGainNode.gain.value = 0.03;
+    unmute() {
+      volumeDelta(0.03);
     },
-    volumeDelta(volume: number){
-      this.volume = volume;
-      mainGainNode.gain.value = this.volume;
+    volumeDelta(volume: number) {
+      volumeDelta(volume);
     },
-    filterDelta(){
-      let max = audioContext.sampleRate / 2;
-      let min = 40;
-      let octaves = Math.log(max/min) / Math.LN2;
-      let multiplier = Math.pow(2, octaves * (this.filter - 1.0))
-      filter.frequency.value = max * multiplier;
+    filterDelta() {
+      filterDelta(this.filter);
     },
-/*    mouseDrag(event: MouseEvent){
-      (this.$refs.childKnob as any).mouseDrag(event.pageY);
+    oninteraction() {
+      startOsc();
     },
-    mouseUpPass(){
-      (this.$refs.childKnob as any).endDrag();
-    }*/
+    oscShapeDelta() {
+      waveformDelta(this.waveform);
+    }
+    /*    mouseDrag(event: MouseEvent){
+          (this.$refs.childKnob as any).mouseDrag(event.pageY);
+        },
+        mouseUpPass(){
+          (this.$refs.childKnob as any).endDrag();
+        }*/
   },
 });
 </script>
@@ -95,7 +88,8 @@ export default defineComponent({
   position: relative;
   width: 100%;
 }
-img{
+
+img {
   width: 100%;
 }
 

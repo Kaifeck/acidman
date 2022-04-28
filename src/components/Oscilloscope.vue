@@ -16,7 +16,7 @@ export default defineComponent({
       //audioCtx: new window.AudioContext,
       analyser: {} as AnalyserNode,
       canvasCtx: {} as any,
-      dataArray: {} as Uint8Array
+      dataArray: {} as any
     }
   },
   beforeMount() {

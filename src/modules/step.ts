@@ -6,7 +6,7 @@ export class Step {
   octaveUp: boolean;
   octaveDown: boolean;
 
-  constructor(note= 'rest', accent = false, slide = false, octaveUp = false, octaveDown = false) {
+  constructor(note = 'rest', accent = false, slide = false, octaveUp = false, octaveDown = false) {
     this.note = note;
     this.accent = accent;
     this.slide = slide;
@@ -14,7 +14,7 @@ export class Step {
     this.octaveDown = octaveDown;
   }
 
-  setValue(index: string, value: any){
+  setValue(index: string, value: any) {
     switch (index) {
       case 'accent':
         this.accent = value;
