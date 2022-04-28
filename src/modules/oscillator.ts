@@ -4,12 +4,13 @@ export const oscillator: OscillatorNode = audioContext.createOscillator();
 export const filter: BiquadFilterNode = audioContext.createBiquadFilter();
 
 const oscTypes: OscillatorType[] = ['sawtooth', 'square'];
+let currentNote = 440;
+let tune = 0;
 
 //Simple Setups
-const defaultGain = 0.03;
+const defaultGain = 0.06;
 oscillator.type = 'sawtooth';
 filter.type = "lowpass";
-const tuning = 0.00 //-1/12 to +1/12
 
 export const initOsc = () : void => {
   //TODO: set init stuff, like OscType, Base Gain/Filter/Accent Etc
@@ -26,11 +27,11 @@ export const initOsc = () : void => {
 export function playNoteOsc(frequency: number) {
   //TODO: Check everything that is required for playing; Frequency, Accent, Slide, OctUp/OctDown, rhythm
   //if note running and no slide stop
-
   mainGainNode.gain.setValueAtTime(0, audioContext.currentTime);
   console.info(frequency);
   console.info('oscillator.ts');
-  oscillator.frequency.value = frequency;
+  currentNote = frequency;
+  oscillator.frequency.value = frequency + frequency * tune;
   mainGainNode.gain.value = defaultGain;
 
 }
@@ -53,6 +54,15 @@ export const startOsc = () : void => {
 
 export const waveformDelta = (waveform: OscillatorType) : void => {
   oscillator.type = waveform;
+}
+
+export const changeTuning = (tuning: number) : void => {
+  tune = tuning/12;
+  oscillator.frequency.value = currentNote + currentNote * tune;
+}
+
+export const changeResonance = (resonance: number) : void => {
+  filter.Q.value = resonance;
 }
 
 /* let oscillator : OscillatorNode = audioContext.createOscillator();

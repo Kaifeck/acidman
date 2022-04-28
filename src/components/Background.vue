@@ -10,6 +10,14 @@
       <input type="range" v-model="filter" min="0" max="1" step="0.01" @input="filterDelta"/>
     </div>
     <div>
+      <label>Tuning</label>
+      <input type="range" v-model="tuning" min="-1" max="1" step="0.01" @input="tuningDelta"/>
+    </div>
+    <div>
+      <label>Resonance</label>
+      <input type="range" v-model="resonance" min="0" max="40" step="0.5" @input="resonanceDelta"/>
+    </div>
+    <div>
       <label>Waveform</label>
       <input type="radio" v-model="waveform" value="square" @input="oscShapeDelta"/>
       <input type="radio" v-model="waveform" value="sawtooth" @input="oscShapeDelta"/>
@@ -23,7 +31,7 @@ import {Component, defineComponent} from 'vue';
 import {notes303} from '../static/notes';
 import {
   playNoteOsc,
-  initOsc, volumeDelta, filterDelta, startOsc, waveformDelta
+  initOsc, volumeDelta, filterDelta, startOsc, waveformDelta, changeTuning, changeResonance
 } from '../modules/oscillator'
 import Knob from './Knob.vue';
 import Oscilloscope from "@/components/Oscilloscope.vue";
@@ -41,7 +49,9 @@ export default defineComponent({
       //notes: [] as Note[],
       noteFreq: notes303[0],
       filter: 1000,
-      waveform: 'triangle' as OscillatorType
+      tuning: 0,
+      resonance: 0,
+      waveform: 'sawtooth' as OscillatorType
     }
   },
   beforeMount() {
@@ -58,7 +68,7 @@ export default defineComponent({
       volumeDelta(0.00)
     },
     unmute() {
-      volumeDelta(0.03);
+      volumeDelta(0.06);
     },
     volumeDelta(volume: number) {
       volumeDelta(volume);
@@ -71,6 +81,12 @@ export default defineComponent({
     },
     oscShapeDelta() {
       waveformDelta(this.waveform);
+    },
+    tuningDelta() {
+      changeTuning(this.tuning);
+    },
+    resonanceDelta(){
+      changeResonance(this.resonance);
     }
     /*    mouseDrag(event: MouseEvent){
           (this.$refs.childKnob as any).mouseDrag(event.pageY);
