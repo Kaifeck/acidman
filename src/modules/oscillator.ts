@@ -1,69 +1,105 @@
-export const audioContext: AudioContext = new window.AudioContext();
-export const mainGainNode: GainNode = audioContext.createGain();
-export const oscillator: OscillatorNode = audioContext.createOscillator();
-export const filter: BiquadFilterNode = audioContext.createBiquadFilter();
+export default class Oscillator {
 
-const oscTypes: OscillatorType[] = ['sawtooth', 'square'];
-let currentNote = 440;
-let tune = 0;
+  audioContext: AudioContext;
+  mainGainNode: GainNode;
+  oscillator: OscillatorNode;
+  filter: BiquadFilterNode;
+  oscTypes: OscillatorType[] = ['sawtooth', 'square'];
+  vcaEnvelope = new Envelope();
+  filterEnvelope = new Envelope();
+  currentNote = 440;
+  tune = 0.0;
+  defaultGain = 0.06;
 
-//Simple Setups
-const defaultGain = 0.06;
-oscillator.type = 'sawtooth';
-filter.type = "lowpass";
+  constructor() {
+    this.audioContext = new window.AudioContext();
+    this.mainGainNode = this.audioContext.createGain();
+    this.oscillator = this.audioContext.createOscillator();
+    this.filter = this.audioContext.createBiquadFilter();
 
-export const initOsc = () : void => {
-  //TODO: set init stuff, like OscType, Base Gain/Filter/Accent Etc
-  //Maybe also add 303 quirks
+    this.oscillator.type = 'sawtooth';
+    this.filter.type = 'lowpass';
+  }
 
-  //Init WebAudio stuff
-  mainGainNode.gain.value = 0.00;
-  oscillator.connect(filter);
-  filter.connect(mainGainNode);
-  mainGainNode.connect(audioContext.destination);
-  //oscillator.start();
+  initOsc() : void {
+    //TODO: set init stuff, like OscType, Base Gain/Filter/Accent Etc
+    //Maybe also add 303 quirks
+
+    //Init WebAudio stuff
+    this.mainGainNode.gain.value = 0.00;
+    this.oscillator.connect(this.filter);
+    this.filter.connect(this.mainGainNode);
+    this.mainGainNode.connect(this.audioContext.destination);
+    //oscillator.start();
+  }
+
+  startOsc() : void {
+    this.oscillator.start();
+  }
+
+  playNoteOsc(frequency: number) : void {
+    //TODO: Check everything that is required for playing; Frequency, Accent, Slide, OctUp/OctDown, rhythm
+    //if note running and no slide stop
+    this.mainGainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+    console.info(frequency);
+    console.info('oscillator.ts');
+    this.currentNote = frequency;
+    this.oscillator.frequency.value = frequency + frequency * this.tune;
+    this.mainGainNode.gain.value = this.defaultGain;
+  }
+
+  setTuning (tuning: number) : void {
+    this.tune = tuning/12;
+    this.oscillator.frequency.value = this.currentNote + this.currentNote * this.tune;
+  }
+
+  setFilter (filterVal: number) : void {
+    const max = this.audioContext.sampleRate / 2;
+    const min = 80;
+    const octaves = Math.log(max/min) / Math.LN2;
+    const multiplier = Math.pow(2, octaves * (filterVal - 1.0))
+    this.filter.frequency.value = max * multiplier;
+  }
+
+  setVolume (volume: number) : void {
+    this.mainGainNode.gain.value = volume;
+  }
+
+  setWaveForm (waveform: OscillatorType) : void  {
+    this.oscillator.type = waveform;
+  }
+
+  setResonance (resonance: number) : void {
+    this.filter.Q.value = resonance;
+  }
+
+
 }
 
-export function playNoteOsc(frequency: number) {
-  //TODO: Check everything that is required for playing; Frequency, Accent, Slide, OctUp/OctDown, rhythm
-  //if note running and no slide stop
-  mainGainNode.gain.setValueAtTime(0, audioContext.currentTime);
-  console.info(frequency);
-  console.info('oscillator.ts');
-  currentNote = frequency;
-  oscillator.frequency.value = frequency + frequency * tune;
-  mainGainNode.gain.value = defaultGain;
+class Envelope {
 
+  private attack: number;
+  private decay: number;
+  private sustain: number;
+  private release: number;
+
+  constructor(attack = 0.1, decay = 0, sustain = 0, release = 0.1) {
+    this.attack = attack;
+    this.decay = decay;
+    this.sustain = sustain;
+    this.release = release;
+  }
 }
 
-export const filterDelta = (filterVal: number) : void => {
-  const max = audioContext.sampleRate / 2;
-  const min = 80;
-  const octaves = Math.log(max/min) / Math.LN2;
-  const multiplier = Math.pow(2, octaves * (filterVal - 1.0))
-  filter.frequency.value = max * multiplier;
-}
+/**
+ * Todo: Create envelopes
+ * 1. Volume/Amp Envelope - fixed
+ * 2. Main Envelope
+ * "Env Mod" knob is connected to the filter - Controls Intensity of filter
+ * "Decay" is also connected to the filter - Controls time (D - Time)
+ *
+ */
 
-export const volumeDelta = (volume: number) : void => {
-  mainGainNode.gain.value = volume;
-}
-
-export const startOsc = () : void => {
-  oscillator.start();
-}
-
-export const waveformDelta = (waveform: OscillatorType) : void => {
-  oscillator.type = waveform;
-}
-
-export const changeTuning = (tuning: number) : void => {
-  tune = tuning/12;
-  oscillator.frequency.value = currentNote + currentNote * tune;
-}
-
-export const changeResonance = (resonance: number) : void => {
-  filter.Q.value = resonance;
-}
 
 /* let oscillator : OscillatorNode = audioContext.createOscillator();
 oscillator.type = 'square';

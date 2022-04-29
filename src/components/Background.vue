@@ -15,7 +15,7 @@
     </div>
     <div>
       <label>Resonance</label>
-      <input type="range" v-model="resonance" min="0" max="40" step="0.5" @input="resonanceDelta"/>
+      <input type="range" v-model="resonance" min="0" max="30" step="0.5" @input="resonanceDelta"/>
     </div>
     <div>
       <label>Waveform</label>
@@ -29,10 +29,7 @@
 <script lang="ts">
 import {Component, defineComponent} from 'vue';
 import {notes303} from '../static/notes';
-import {
-  playNoteOsc,
-  initOsc, volumeDelta, filterDelta, startOsc, waveformDelta, changeTuning, changeResonance
-} from '../modules/oscillator'
+import Oscillator from '../modules/oscillator'
 import Knob from './Knob.vue';
 import Oscilloscope from "@/components/Oscilloscope.vue";
 import Sequencer from './Sequencer.vue';
@@ -51,42 +48,43 @@ export default defineComponent({
       filter: 1000,
       tuning: 0,
       resonance: 0,
-      waveform: 'sawtooth' as OscillatorType
+      waveform: 'sawtooth' as OscillatorType,
+      oscillator: new Oscillator()
     }
   },
   beforeMount() {
-    initOsc();
+    this.oscillator.initOsc();
   },
   methods: {
     playNote(freq: number) {
-      playNoteOsc(freq);
+      this.oscillator.playNoteOsc(freq);
     },
     playSlide() {
       //oscillator.frequency.linearRampToValueAtTime(oscillator.frequency.value*2, audioContext.currentTime + 0.2);
     },
     mute() {
-      volumeDelta(0.00)
+      this.oscillator.setVolume(0.00)
     },
     unmute() {
-      volumeDelta(0.06);
+      this.oscillator.setVolume(0.06);
     },
     volumeDelta(volume: number) {
-      volumeDelta(volume);
+      this.oscillator.setVolume(volume);
     },
     filterDelta() {
-      filterDelta(this.filter);
+      this.oscillator.setFilter(this.filter);
     },
     oninteraction() {
-      startOsc();
+      this.oscillator.startOsc();
     },
     oscShapeDelta() {
-      waveformDelta(this.waveform);
+      this.oscillator.setWaveForm(this.waveform);
     },
     tuningDelta() {
-      changeTuning(this.tuning);
+      this.oscillator.setTuning(this.tuning);
     },
     resonanceDelta(){
-      changeResonance(this.resonance);
+      this.oscillator.setResonance(this.resonance);
     }
     /*    mouseDrag(event: MouseEvent){
           (this.$refs.childKnob as any).mouseDrag(event.pageY);
