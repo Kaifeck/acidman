@@ -18,6 +18,10 @@
       <input type="range" v-model="resonance" min="0" max="30" step="0.5" @input="resonanceDelta"/>
     </div>
     <div>
+      <label>Filtergain</label>
+      <input type="range" v-model="filterGain" min="-40" max="40" step="0.5" @input="filtergainDelta"/>
+    </div>
+    <div>
       <label>Waveform</label>
       <input type="radio" v-model="waveform" value="square" @input="oscShapeDelta"/>
       <input type="radio" v-model="waveform" value="sawtooth" @input="oscShapeDelta"/>
@@ -29,7 +33,7 @@
 <script lang="ts">
 import {Component, defineComponent} from 'vue';
 import {notes303} from '../static/notes';
-import Oscillator from '../modules/oscillator'
+import Voice from '../modules/voice'
 import Knob from './Knob.vue';
 import Oscilloscope from "@/components/Oscilloscope.vue";
 import Sequencer from './Sequencer.vue';
@@ -46,45 +50,49 @@ export default defineComponent({
       //notes: [] as Note[],
       noteFreq: notes303[0],
       filter: 1000,
+      filterGain: 1,
       tuning: 0,
       resonance: 0,
       waveform: 'sawtooth' as OscillatorType,
-      oscillator: new Oscillator()
+      voice: new Voice()
     }
   },
   beforeMount() {
-    this.oscillator.initOsc();
+    this.voice.initVoice();
   },
   methods: {
     playNote(freq: number) {
-      this.oscillator.playNoteOsc(freq);
+      this.voice.playNoteOsc(freq);
     },
     playSlide() {
       //oscillator.frequency.linearRampToValueAtTime(oscillator.frequency.value*2, audioContext.currentTime + 0.2);
     },
     mute() {
-      this.oscillator.setVolume(0.00)
+      this.voice.setVolume(0.00);
     },
     unmute() {
-      this.oscillator.setVolume(0.06);
+      this.voice.setVolume(0.06);
     },
     volumeDelta(volume: number) {
-      this.oscillator.setVolume(volume);
+      this.voice.setVolume(volume);
     },
     filterDelta() {
-      this.oscillator.setFilter(this.filter);
+      this.voice.setFilter(this.filter);
     },
     oninteraction() {
-      this.oscillator.startOsc();
+      this.voice.startOsc();
     },
     oscShapeDelta() {
-      this.oscillator.setWaveForm(this.waveform);
+      this.voice.setWaveForm(this.waveform);
     },
     tuningDelta() {
-      this.oscillator.setTuning(this.tuning);
+      this.voice.setTuning(this.tuning);
     },
-    resonanceDelta(){
-      this.oscillator.setResonance(this.resonance);
+    resonanceDelta() {
+      this.voice.setResonance(this.resonance);
+    },
+    filtergainDelta() {
+      this.voice.setFilterGain(this.filterGain);
     }
     /*    mouseDrag(event: MouseEvent){
           (this.$refs.childKnob as any).mouseDrag(event.pageY);

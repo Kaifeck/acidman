@@ -1,4 +1,4 @@
-export default class Oscillator {
+export default class Voice {
 
   audioContext: AudioContext;
   mainGainNode: GainNode;
@@ -21,7 +21,7 @@ export default class Oscillator {
     this.filter.type = 'lowpass';
   }
 
-  initOsc() : void {
+  initVoice(): void {
     //TODO: set init stuff, like OscType, Base Gain/Filter/Accent Etc
     //Maybe also add 303 quirks
 
@@ -33,11 +33,11 @@ export default class Oscillator {
     //oscillator.start();
   }
 
-  startOsc() : void {
+  startOsc(): void {
     this.oscillator.start();
   }
 
-  playNoteOsc(frequency: number) : void {
+  playNoteOsc(frequency: number): void {
     //TODO: Check everything that is required for playing; Frequency, Accent, Slide, OctUp/OctDown, rhythm
     //if note running and no slide stop
     this.mainGainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
@@ -48,29 +48,34 @@ export default class Oscillator {
     this.mainGainNode.gain.value = this.defaultGain;
   }
 
-  setTuning (tuning: number) : void {
-    this.tune = tuning/12;
+  setTuning(tuning: number): void {
+    this.tune = tuning / 12;
     this.oscillator.frequency.value = this.currentNote + this.currentNote * this.tune;
   }
 
-  setFilter (filterVal: number) : void {
+  setFilter(filterVal: number): void {
     const max = this.audioContext.sampleRate / 2;
     const min = 80;
-    const octaves = Math.log(max/min) / Math.LN2;
+    const octaves = Math.log(max / min) / Math.LN2;
     const multiplier = Math.pow(2, octaves * (filterVal - 1.0))
     this.filter.frequency.value = max * multiplier;
   }
 
-  setVolume (volume: number) : void {
+  setVolume(volume: number): void {
     this.mainGainNode.gain.value = volume;
   }
 
-  setWaveForm (waveform: OscillatorType) : void  {
+  setWaveForm(waveform: OscillatorType): void {
     this.oscillator.type = waveform;
   }
 
-  setResonance (resonance: number) : void {
-    this.filter.Q.value = resonance;
+  setResonance(resonance: number): void {
+    this.filter.Q.setValueAtTime(resonance, this.audioContext.currentTime)
+  }
+
+  setFilterGain(filterGain: number): void {
+    console.info(filterGain);
+    this.filter.gain.setValueAtTime(filterGain, this.audioContext.currentTime);
   }
 
 
